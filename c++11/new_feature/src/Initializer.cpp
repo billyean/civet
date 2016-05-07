@@ -1,10 +1,20 @@
 #include <iostream>
+#include <vector>
 
-void print (std::initializer_list<int> list)
+void print (std::vector<int>& vector)
 {
     // New for-loop in C++ 11.
-    for (auto i : list) {
-        std::cout << i << std::endl;
+    for (auto v : vector) {
+        std::cout << v << std::endl;
+    }
+}
+
+// In C++ 11, lambda's type is std::function<returnType<ParamType1,ParamType2,...>>
+void manipulate (std::vector<int> &vec, std::function<int(int)> lambda)
+{
+    // Manipulate with element by refernece.
+    for (auto& elem : vec) {
+        elem = lambda(elem);
     }
 }
 
@@ -24,14 +34,14 @@ P_Initializer::P_Initializer(std::initializer_list<int> list) {
 
 auto main() -> int
 {
-    // New auto keyword in C++ 11
-    auto list = {1,1,2,3,5,8,13,21,34,55,89,144,233,377,610};
-    print(list);
+    std::vector<int> vec{1,1,2,3,5,8,13,21,34,55,89,144,233,377,610};
+    manipulate(vec, [](int i) -> int { return i << 1; });
+    print(vec);
 
     P_Initializer p(3, 5);
     P_Initializer q{3, 5};
     P_Initializer r{3, 5, 42};
-    P_Initializer s = list;
+    P_Initializer s = {1,1,2,3,5,8,13,21,34,55,89,144,233,377,610};
 
 
 }
