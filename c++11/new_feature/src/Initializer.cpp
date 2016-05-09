@@ -42,6 +42,4 @@ auto main() -> int
     P_Initializer q{3, 5};
     P_Initializer r{3, 5, 42};
     P_Initializer s = {1,1,2,3,5,8,13,21,34,55,89,144,233,377,610};
-
-
 }
