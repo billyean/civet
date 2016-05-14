@@ -9,8 +9,8 @@ public:
     MyString(string s) : instance(s) {}
     MyString& operator+(int i)
     {
-      MyString *vs = new Mystring(v + to_string(i));
-      return *vs;
+      instance +=  to_string(i);
+      return *this;
     }
     friend ostream& operator<<(ostream& , const MyString&);
 };
@@ -28,7 +28,7 @@ auto add(T1 x, T2 y) -> decltype(x + y) {
 }
 
 auto main() -> int {
-    Mystring hs{"hello"};
+    MyString hs{"hello"};
     auto appendIntToStr = add(hs, 9);
     cout << appendIntToStr << endl;
 
