@@ -37,6 +37,10 @@ PinCoreExecutor::PinCoreExecutor(uint16_t core, std::shared_ptr<MonitoredQueue> 
     pinned_core_(core), sp_work_queue_(sp_work_queue)
 {
   // Pin current thread to given core.
+#ifdef THREAD_AFFINITY_POLICY
+  thread_affinity_policy_data_t policy = { pinned_core_ + 1 };
+  thread_policy_set(pthread_mach_thread_np(t_->native_handle()), THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, 1);
+#else
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
   CPU_SET(pinned_core_, &cpuset);
@@ -46,6 +50,7 @@ PinCoreExecutor::PinCoreExecutor(uint16_t core, std::shared_ptr<MonitoredQueue> 
   if (rc != 0) {
     throw std::runtime_error("Unable set affinity for thread");
   }
+#endif
 }
 
 MyThreadPool::MyThreadPool()  {
