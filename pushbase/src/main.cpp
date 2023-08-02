@@ -87,13 +87,18 @@ auto main() -> int {
         }));
         break;
     }
-    if(i % 50000 == 0) {
-      std::this_thread::sleep_for(15000ms);
+    if(i % 500 == 0) {
+      std::this_thread::sleep_for(60000ms);
     }
   }
 
+  int j = 0;
   for (auto iter = results.begin(); iter != results.end(); ++iter) {
     iter->wait();
+    j++;
+    if (++j / 400  == 0) {
+      std::this_thread::sleep_for(30000ms);
+    }
   }
   cout << "End of execution." << endl;
 
