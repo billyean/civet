@@ -1,7 +1,11 @@
 #include <vector>
 #include <iostream>
 #include <cstdio>
-#include <cstdlib>
+#include <algorithm>
+#include <iterator>
+#include <cstring>
+
+using namespace std;
 
 void testShrink() {
     std::vector<int> v;
@@ -23,7 +27,7 @@ void testConstructor() {
 
     std::vector<std::string> v2(v1);
     std::cout << "print elements in v2 : " << std::endl;
-    copy(v2.cbegin(), v2.cend(), std::ostream_iterator<std::string>(std::cout, "\n"));
+    std::copy(v2.cbegin(), v2.cend(), std::ostream_iterator<std::string>(std::cout, "\n"));
 
     std::cout << "v2.capacity() = " <<  v2.capacity() << "; v2.size() = " <<  v2.size() << std::endl;
 

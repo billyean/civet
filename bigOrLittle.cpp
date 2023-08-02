@@ -1,5 +1,5 @@
 #include <iostream>
-#include <stdlib.h>
+#include <cstring>
 
 typedef unsigned char *byte_pointer;
 

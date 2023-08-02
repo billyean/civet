@@ -1,5 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <functional>
+
+using namespace std;
 
 void print (std::vector<int>& vector)
 {

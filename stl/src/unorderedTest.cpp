@@ -2,8 +2,8 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <iostream>
-#include <cstdio>
-#include <cstdlib>
+#include <iterator>
+#include <algorithm>
 
 using namespace std;
 

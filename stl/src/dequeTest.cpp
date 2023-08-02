@@ -1,7 +1,8 @@
 #include <deque>
 #include <iostream>
 #include <cstdio>
-#include <cstdlib>
+#include <iterator>
+#include <algorithm>
 
 void testShrink() {
     std::deque<int> d;
