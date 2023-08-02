@@ -88,7 +88,7 @@ auto main() -> int {
         break;
     }
     if(i % 50000 == 0) {
-      std::this_thread::sleep_for(15000ms);
+      std::this_thread::sleep_for(180000ms);
     }
   }
 

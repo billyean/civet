@@ -4,6 +4,11 @@
 
 #include "MyThreadPool.h"
 
+#if __APPLE__
+#include <mach/mach.h>
+#include <mach/thread_policy.h>
+#endif
+
 void MonitoredQueue::push(Callable &callable) {
   if (!stopped_) {
     {
@@ -37,6 +42,7 @@ PinCoreExecutor::PinCoreExecutor(uint16_t core, std::shared_ptr<MonitoredQueue> 
     pinned_core_(core), sp_work_queue_(sp_work_queue)
 {
   // Pin current thread to given core.
+    t_ = std::make_unique<std::thread>(&PinCoreExecutor::run, this);
 #ifdef THREAD_AFFINITY_POLICY
   thread_affinity_policy_data_t policy = { pinned_core_ + 1 };
   thread_policy_set(pthread_mach_thread_np(t_->native_handle()), THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, 1);
@@ -44,7 +50,6 @@ PinCoreExecutor::PinCoreExecutor(uint16_t core, std::shared_ptr<MonitoredQueue> 
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
   CPU_SET(pinned_core_, &cpuset);
-  t_ = std::make_unique<std::thread>(&PinCoreExecutor::run, this);
   //int rc = pthread_setaffinity_np(native_handle(), sizeof(cpu_set_t), &cpuset);
   int rc = pthread_setaffinity_np(t_->native_handle(), sizeof(cpu_set_t), &cpuset);
   if (rc != 0) {
