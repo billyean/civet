@@ -33,6 +33,8 @@ Callable MonitoredQueue::pop() {
     qlock.unlock();
     return task;
   }
+
+  // Only reach here when stop the whole process.
   Callable doNothing([]{});
   return doNothing;
 }
@@ -42,10 +44,13 @@ PinCoreExecutor::PinCoreExecutor(uint16_t core, std::shared_ptr<MonitoredQueue> 
     pinned_core_(core), sp_work_queue_(sp_work_queue)
 {
   // Pin current thread to given core.
-    t_ = std::make_unique<std::thread>(&PinCoreExecutor::run, this);
+  t_ = std::make_unique<std::thread>(&PinCoreExecutor::run, this);
 #ifdef THREAD_AFFINITY_POLICY
   thread_affinity_policy_data_t policy = { pinned_core_ + 1 };
-  thread_policy_set(pthread_mach_thread_np(t_->native_handle()), THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, 1);
+  int rc = thread_policy_set(pthread_mach_thread_np(t_->native_handle()), THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, 1);
+    if (rc != 0) {
+    throw std::runtime_error("Unable set affinity for thread");
+  }
 #else
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
