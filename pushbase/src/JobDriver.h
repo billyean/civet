@@ -36,45 +36,50 @@ struct SmallResultCache {
   std::unique_ptr<Data> combine();
 };
 
-template <typename Data>
+template <typename T>
 class PipelineRunner {
 public:
-
-  PipelineRunner(std::vector<std::unique_ptr<Task<Data>>>& tasks, const std::function<void()> callback_on_succeed,
+  PipelineRunner(std::vector<std::unique_ptr<Task<T>>>& tasks, const std::function<void()> callback_on_succeed,
             const std::function<void()> callback_on_exception, int pos);
 
-  std::future<bool> run();     // Run the pipeline runner with async flavor.
+  bool run();               // Run the pipeline runner with async flavor.
 
-  void cancel() {              // Cancel the execution of pipeline runner.
+  void cancel() {           // Cancel the execution of pipeline runner.
     cancelled_ = true;
   }
 private:
   PipelineRunnerState state_;
-  std::vector<std::unique_ptr<Task<Data>>> tasks_;
+  std::vector<std::unique_ptr<Task<T>>> tasks_;
   std::function<void()> callback_on_succeed_;
   std::function<void()> callback_on_exception_;
   uint16_t pos_;
-  bool cancelled_;
+  bool cancelled_ = false;
 };
 
 template <class R>
-class EventDriver {
+class JobDriver {
 public:
-  EventDriver(std::shared_ptr<std::queue<R>> source, bool source_ready = true);
+  JobDriver(std::shared_ptr<std::queue<R>> source, std::vector<PipelineRunner<R>> &tasks,
+            std::function<R(std::vector<R>&)> sink, bool source_ready = true);
 
-  void run();                                 // main method of driver
+  bool run();                                 // main method of driver
+
+  void cancel();                              // cancel all worker
 private:
   bool source_ready_;                         // true only when source is exhausted
   uint64_t size_;                             // only determined when source_ready_ is true
   std::atomic<uint64_t> success_;
-  volatile bool execute_exception_;
-  std::vector<RowVectorPtr> result_;         // Result of PipelineRunner
-  std::vector<PipelineRunner<R>> tasks_;        // Execute tasks body.
+  std::atomic<bool> execute_exception_;
+  std::vector<RowVectorPtr> result_;          // Result of PipelineRunner
+  std::vector<PipelineRunner<R>> tasks_;      // Execute tasks body.
+
   std::function<R(std::vector<R>&)> combine_;  // one-time function called when all tasks finished successfully.
+
   std::function<void()> complete_;
 
   std::vector<std::unique_ptr<SmallResultCache<R>>> caches_;
   std::shared_ptr<std::queue<R>> source_;
+  bool cancel_ = false;
 };
 
 
