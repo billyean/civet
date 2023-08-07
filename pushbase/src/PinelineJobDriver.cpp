@@ -2,10 +2,10 @@
 // Created by haibo on 8/2/23.
 //
 
-#include "JobDriver.h"
+#include "PipelineJobDriver.h"
 
 template <typename Data>
-PipelineRunner<Data>::PipelineRunner(std::vector<std::unique_ptr<Task<Data>>> &tasks,
+PipelineRunner<Data>::PipelineRunner(std::vector<std::unique_ptr<SingleOp<Data>>> &tasks,
                                const std::function<void()> callback_on_succeed,
                                const std::function<void()> callback_on_exception, int pos):
     callback_on_succeed_(callback_on_succeed), callback_on_exception_(callback_on_exception),
@@ -30,15 +30,15 @@ bool PipelineRunner<Data>::run() {
 }
 
 template <typename R>
-JobDriver<R>::JobDriver(std::shared_ptr<std::queue<R>> source, std::vector<PipelineRunner<R>> &tasks,
-                     std::function<R(std::vector<R>&)> sink, bool source_ready):
-                     source_ready_(source_ready), execute_exception_(false) {
+JobDriver<R>::JobDriver(std::shared_ptr<StreamingQueue<R>> source, std::vector<PipelineRunner<R>> &tasks,
+                     std::function<R(std::vector<R>&)> sink):
+        source_(source), tasks_(std::move(tasks)), execute_exception_(false) {
 
 }
 
 template <typename R>
 bool JobDriver<R>::run() {
-
+  while ()
 }
 
 template <typename R>

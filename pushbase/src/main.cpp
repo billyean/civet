@@ -1,7 +1,7 @@
 //
 // Created by haibo on 8/1/23.
 //
-#include "MyThreadPool.h"
+#include "executors/CPUThreadPool.h"
 #include <vector>
 #include <future>
 #include <iostream>
@@ -21,7 +21,7 @@ bool isPrime(long candidate) {
 }
 
 auto main() -> int {
-  MyThreadPool pool;
+  CPUThreadPool pool;
   vector<future<void>> results;
 
   for (int i = 1; i <= 1000000; i++) {

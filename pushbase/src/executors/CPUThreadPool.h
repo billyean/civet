@@ -14,7 +14,6 @@
 
 using Callable = std::packaged_task<void()>;
 
-
 struct MonitoredQueue {
     void push(Callable& callable);
 
@@ -25,13 +24,13 @@ struct MonitoredQueue {
     };
 
     std::queue<Callable> work_queue_;
-    std::mutex pool_mutex_;                     // Mutex to guard the usage of working queue
-    std::condition_variable new_work_cond_;     // wait condition when queue is empty.
+    std::mutex mt_queue_;                     // Mutex to guard the usage of working queue
+    std::condition_variable cv_queue_;        // wait condition when queue is empty.
     bool stopped_;
 };
 
 
-class PinCoreExecutor: public std::thread {
+class PinCoreExecutor {
 public:
     PinCoreExecutor(uint16_t core, std::shared_ptr<MonitoredQueue>& sp_work_queue);
 
@@ -48,9 +47,9 @@ private:
     std::shared_ptr<MonitoredQueue> sp_work_queue_;
 };
 
-class MyThreadPool {
+class CPUThreadPool {
 public:
-  explicit MyThreadPool();
+  explicit CPUThreadPool();
 
   template<class F> auto asyncall(F &&func) {
     using ResultType = std::invoke_result_t<std::decay_t<F>>;

@@ -1,8 +1,8 @@
 //
-// Created by haibo on 8/1/23.
+// Created by Haibo Yan on 8/1/23.
 //
 
-#include "MyThreadPool.h"
+#include "CPUThreadPool.h"
 
 #if __APPLE__
 #include <mach/mach.h>
@@ -12,22 +12,19 @@
 void MonitoredQueue::push(Callable &callable) {
   if (!stopped_) {
     {
-      std::lock_guard<std::mutex> lk(pool_mutex_);
+      std::lock_guard<std::mutex> lk(mt_queue_);
       work_queue_.push(std::move(callable));
       // release lock once push is done.
     }
-    // Notify only one thread
-    new_work_cond_.notify_one();
+    // Notify only one thread to avoid contention
+    cv_queue_.notify_one();
   }
 }
 
 Callable MonitoredQueue::pop() {
   while (!stopped_) {
-    std::unique_lock<std::mutex> qlock(pool_mutex_);
-    while (work_queue_.empty()) {
-      // Wait the queue is not empty again.
-      new_work_cond_.wait(qlock);
-    }
+    std::unique_lock<std::mutex> qlock(mt_queue_);
+    cv_queue_.wait(qlock, [this](){ return !work_queue_.empty();});
     Callable task = std::move(work_queue_.front());
     work_queue_.pop();
     qlock.unlock();
@@ -63,7 +60,7 @@ PinCoreExecutor::PinCoreExecutor(uint16_t core, std::shared_ptr<MonitoredQueue> 
 #endif
 }
 
-MyThreadPool::MyThreadPool()  {
+CPUThreadPool::CPUThreadPool()  {
   sp_work_queue_ = std::make_shared<MonitoredQueue>();
   long cores = sysconf(_SC_NPROCESSORS_ONLN);
   for (long i = 0; i < cores; ++i) {
