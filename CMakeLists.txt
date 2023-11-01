@@ -27,6 +27,9 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(c++11)
 add_subdirectory(stl)
 add_subdirectory(pushbase)
+add_subdirectory(leak)
+add_subdirectory(bp)
+
 
 add_executable(bigOrLittle
         bigOrLittle.cpp)
